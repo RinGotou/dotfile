@@ -5,8 +5,7 @@ Plug 'vim-airline/vim-airline-themes'
 call plug#end()
 
 " For vim-airline
-let g:airline_theme = 'xtermlight'
-let g:airline_section_z = '%l/%L, %P'
+let g:airline_theme = 'luna'
 
 " Basic configuration
 set tabstop=2
