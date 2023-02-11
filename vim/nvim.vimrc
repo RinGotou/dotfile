@@ -2,7 +2,6 @@ set encoding=utf8
 
 call plug#begin()
 Plug 'nvim-lua/plenary.nvim'
-Plug 'Shatur/neovim-session-manager'
 Plug 'nvim-tree/nvim-tree.lua'
 Plug 'feline-nvim/feline.nvim'
 Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
@@ -10,9 +9,30 @@ Plug 'MunifTanjim/nui.nvim'
 Plug 'VonHeikemen/fine-cmdline.nvim'
 Plug 'nvim-zh/colorful-winsep.nvim'
 Plug 'nvim-tree/nvim-web-devicons'
+if has('win32') == 0
+  Plug 'Shatur/neovim-session-manager'
+endif
 call plug#end()
 
 colorscheme catppuccin-latte " catppuccin-latte, catppuccin-frappe, catppuccin-macchiato, catppuccin-mocha
+
+" Platform Specific
+
+if has('win32') == 0
+lua << EOF
+  local user_home = os.getenv('HOME')
+  require('session_manager').setup({
+    autosave_ignore_dirs = {user_home, '/',}, -- A list of directories where the session will not be autosaved.
+    autosave_ignore_filetypes = { -- All buffers of these file types will be closed before the session is saved.
+      'gitcommit', 'NvimTree',
+    },
+    autoload_mode = require('session_manager.config').AutoloadMode.Disabled,
+    autosave_ignore_buftypes = {'nowrite'}, -- All buffers of these bufer types will be closed before the session is saved.
+    autosave_only_in_session = false, -- Always autosaves session. If true, only autosaves after a session is active.
+    max_path_length = 80,  -- Shorten the display path if length exceeds this threshold. Use 0 if don't want to shorten the path at all.
+  })
+EOF
+endif
 
 lua << EOF
 -- set termguicolors to enable highlight groups
@@ -31,11 +51,6 @@ require("nvim-tree").setup({
   hijack_cursor = true,
   view = {
     width = 30,
-    mappings = {
-      list = {
-        { key = "u", action = "dir_up" },
-      },
-    },
   },
   renderer = {
     group_empty = true,
@@ -69,13 +84,13 @@ require("colorful-winsep").setup({
   end,
 })
 
-local function open_nvim_tree()
-
-  -- open the tree
-  require("nvim-tree.api").tree.open()
-end
-
-vim.api.nvim_create_autocmd({ "VimEnter" }, { callback = open_nvim_tree })
+-- local function open_nvim_tree()
+-- 
+--   -- open the tree
+--   require("nvim-tree.api").tree.open()
+-- end
+-- 
+-- vim.api.nvim_create_autocmd({ "VimEnter" }, { callback = open_nvim_tree })
 vim.api.nvim_set_keymap('n', ':', '<cmd>FineCmdline<CR>', {noremap = true})
 EOF
 
@@ -98,15 +113,16 @@ set backspace=indent,eol,start
 nnoremap j <Up>
 nnoremap k <Down>
 nnoremap <C-s> <Esc>:w<cr>
-nnoremap <F2> :NvimTreeToggle<cr>
-nnoremap <F3> :SessionManager load_session<cr>
-nnoremap <F4> :SessionManager delete_session<cr>
 nnoremap <C-A-Q> :q<cr>
 nnoremap <A-`> <C-w>w
 nnoremap <A-1> :NvimTreeToggle<cr>
-nnoremap <A-2> :SessionManager load_session<cr>
-nnoremap <A-3> :SessionManager delete_session<cr>
-nnoremap <A-4> :set hlsearch!<cr>
+nnoremap <A-2> :set hlsearch!<cr>
+if has('win32')
+  nnoremap <A-3> :mksession!<cr>
+else
+  nnoremap <A-3> :SessionManager load_session<cr>
+  nnoremap <A-4> :SessionManager delete_session<cr>
+endif
 nnoremap <A-0> i
 inoremap <A-0> <Esc>
 noremap <A-Left> <C-w>>
@@ -116,7 +132,8 @@ noremap <A-Down> <C-w>+
 nnoremap <A-/> :tabnew<cr>
 nnoremap <A-,> gT
 nnoremap <A-.> gt
-nnoremap <A-'> :tabclose<cr>
+nnoremap <A-;> :tabclose<cr>
+nnoremap ： :FineCmdline<cr>
 
 let g:mouse_toggle = 1
 set mouse=a
@@ -133,10 +150,8 @@ function ToggleMouse()
   endif
 endfunction
 
-" nnoremap q :call ToggleMouse()<Enter>
 nnoremap q <Nop>
 vnoremap q <Nop>
-" nnoremap <2-LeftMouse> i
 
 set completeopt=menu,menuone
 let g:ycm_add_preview_to_completeopt=0
@@ -144,20 +159,3 @@ let g:ycm_confirm_extra_conf=0
 
 highlight PMenu ctermfg=0 ctermbg=69 guifg=black guibg=LightCyan
 highlight PMenuSel ctermfg=15 ctermbg=8 guifg=white guibg=grey
-
-function! s:disable_italic()
-  let his = ''
-  redir => his
-  silent hi
-  redir END
-  let his = substitute(his, '\n\s\+', ' ', 'g')
-  for line in split(his, "\n")
-    if line !~ ' links to ' && line !~ ' cleared$'
-      exe 'hi' substitute(substitute(line, ' xxx ', ' ', ''), 'italic', 'none', 'g')
-    endif
-  endfor
-endfunction
-
-if has('win32')
-  call s:disable_italic()
-endif
