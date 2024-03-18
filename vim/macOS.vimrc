@@ -1,3 +1,5 @@
+set encoding=utf8
+
 call plug#begin()
 Plug 'ycm-core/YouCompleteMe'
 Plug 'vim-airline/vim-airline'
@@ -33,8 +35,8 @@ set completeopt=menu,menuone
 let g:ycm_add_preview_to_completeopt=0
 let g:ycm_confirm_extra_conf=0
 
-highlight PMenu ctermfg=0 ctermbg=69 guifg=black guibg=blue
-highlight PMenuSel ctermfg=15 ctermbg=8 guifg=white guibg=grey
+highlight PMenu ctermfg=white ctermbg=darkblue guifg=white guibg=darkblue
+highlight PMenuSel ctermfg=white ctermbg=black guifg=white guibg=black
 
 let g:ycm_semantic_triggers =  {
   \   'c' : ['->', '.'],
