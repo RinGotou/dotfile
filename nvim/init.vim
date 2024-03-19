@@ -7,8 +7,8 @@ Plug 'feline-nvim/feline.nvim'
 Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
 Plug 'MunifTanjim/nui.nvim'
 Plug 'VonHeikemen/fine-cmdline.nvim'
-Plug 'nvim-zh/colorful-winsep.nvim'
 Plug 'nvim-tree/nvim-web-devicons'
+Plug 'ycm-core/YouCompleteMe'
 if has('win32') == 0
   Plug 'Shatur/neovim-session-manager'
 endif
@@ -64,25 +64,6 @@ require("nvim-tree").setup({
   },
 })
 
-require("colorful-winsep").setup({
-  -- highlight for Window separator
-  highlight = {
-    bg = "#EFF1F5",
-    fg = "#4C4F69",
-  },
-  -- timer refresh rate
-  interval = 30,
-  -- This plugin will not be activated for filetype in the following table.
-  no_exec_files = { "packer", "TelescopePrompt", "mason", "CompetiTest", "NvimTree" },
-  -- Symbols for separator lines, the order: horizontal, vertical, top left, top right, bottom left, bottom right.
-  symbols = { "━", "┃", "┏", "┓", "┗", "┛" },
-  close_event = function()
-    -- Executed after closing the window separator
-  end,
-  create_event = function()
-    -- Executed after creating the window separator
-  end,
-})
 
 -- local function open_nvim_tree()
 -- 
@@ -91,6 +72,7 @@ require("colorful-winsep").setup({
 -- end
 -- 
 -- vim.api.nvim_create_autocmd({ "VimEnter" }, { callback = open_nvim_tree })
+-- TODO: Rewrite keymapping to lua
 vim.api.nvim_set_keymap('n', ':', '<cmd>FineCmdline<CR>', {noremap = true})
 EOF
 
@@ -114,7 +96,7 @@ nnoremap j <Up>
 nnoremap k <Down>
 nnoremap <C-s> <Esc>:w<cr>
 nnoremap <C-A-Q> :q<cr>
-nnoremap <A-`> <C-w>w
+nnoremap <A-`> <cmd>FineCmdline<cr>YcmCompleter GoTo
 nnoremap <A-1> :NvimTreeToggle<cr>
 nnoremap <A-2> :set hlsearch!<cr>
 if has('win32')
@@ -123,8 +105,6 @@ else
   nnoremap <A-3> :SessionManager load_session<cr>
   nnoremap <A-4> :SessionManager delete_session<cr>
 endif
-nnoremap <A-0> i
-inoremap <A-0> <Esc>
 noremap <A-Left> <C-w>>
 noremap <A-Right> <C-w><
 noremap <A-Up> <C-w>-
@@ -150,8 +130,8 @@ function ToggleMouse()
   endif
 endfunction
 
-nnoremap q <Nop>
-vnoremap q <Nop>
+nnoremap q :call ToggleMouse()<cr>
+vnoremap q :call ToggleMouse()<cr>
 
 set completeopt=menu,menuone
 let g:ycm_add_preview_to_completeopt=0
