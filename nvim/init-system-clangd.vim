@@ -110,6 +110,8 @@ vnoremap q :call ToggleMouse()<cr>
 set completeopt=menu,menuone
 let g:ycm_add_preview_to_completeopt=0
 let g:ycm_confirm_extra_conf=0
+let g:ycm_use_clangd = 1
+let g:ycm_clangd_binary_path = '/usr/bin/clangd'
 let g:ycm_semantic_triggers =  {
   \   'c' : ['->', '.'],
   \   'objc' : ['->', '.', 're!\[[_a-zA-Z]+\w*\s', 're!^\s*[^\W\d]\w*\s',
